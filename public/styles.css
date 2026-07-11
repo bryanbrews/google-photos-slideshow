@@ -1,0 +1,197 @@
+/* ─── Slideshow — full-screen Ken Burns crossfade ─── */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Two stacked image layers; opacity crossfades between them. */
+.slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  will-change: transform, opacity;
+  transform: scale(1.05);
+  /* Ken Burns tunables (overridden by direction/strength classes below). */
+  --kb-from: 1.06;
+  --kb-to: 1.22;
+  --kb-tx0: 0%;
+  --kb-ty0: 0%;
+  --kb-tx1: 0%;
+  --kb-ty1: 0%;
+  --kb-dur: 8s;
+}
+
+.slide.active { opacity: 1; }
+
+/* Ken Burns zoom + pan. Restarted per slide by toggling the class (reflow). */
+.slide.kb {
+  animation: kenburns var(--kb-dur) ease-out forwards;
+}
+
+@keyframes kenburns {
+  from { transform: scale(var(--kb-from)) translate(var(--kb-tx0), var(--kb-ty0)); }
+  to   { transform: scale(var(--kb-to))   translate(var(--kb-tx1), var(--kb-ty1)); }
+}
+
+/* Stronger zoom for orientation-mismatched photos (landscape on a portrait
+   viewport, or portrait on a landscape viewport) — adds motion to the heavy
+   object-fit:cover crop. */
+.slide.kb-strong {
+  --kb-from: 1.12;
+  --kb-to: 1.45;
+}
+
+/* Randomized pan directions for variety. */
+.slide.kb-tl { --kb-tx0: 1.8%;  --kb-ty0: 1.8%;  --kb-tx1: -1.8%; --kb-ty1: -1.8%; }
+.slide.kb-tr { --kb-tx0: -1.8%; --kb-ty0: 1.8%;  --kb-tx1: 1.8%;  --kb-ty1: -1.8%; }
+.slide.kb-bl { --kb-tx0: 1.8%;  --kb-ty0: -1.8%; --kb-tx1: -1.8%; --kb-ty1: 1.8%; }
+.slide.kb-br { --kb-tx0: -1.8%; --kb-ty0: -1.8%; --kb-tx1: 1.8%;  --kb-ty1: 1.8%; }
+.slide.kb-c  { --kb-tx0: 0%;    --kb-ty0: 0%;    --kb-tx1: 0%;    --kb-ty1: 0%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .slide.kb { animation: none; transform: scale(1.04); }
+}
+
+/* ─── Start gate ─── */
+.start-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  transition: opacity 0.6s ease;
+  cursor: pointer;
+}
+.start-overlay.hidden { opacity: 0; pointer-events: none; }
+
+.start-inner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  width: min(90vw, 460px);
+  padding: 0 1rem;
+}
+
+.start-label {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.start-input {
+  width: 100%;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 0.95rem;
+  padding: 0.75em 1em;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.start-input::placeholder { color: rgba(255, 255, 255, 0.35); }
+.start-input:focus { border-color: #fff; background: rgba(255, 255, 255, 0.1); }
+
+.start-error {
+  min-height: 1.1em;
+  margin: 0;
+  color: #ff8a8a;
+  font-size: 0.8rem;
+}
+
+.start-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 1.35rem;
+  letter-spacing: 0.15em;
+  padding: 0.9em 1.8em;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.start-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: #fff; }
+
+.start-note {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+/* ─── Controls ─── */
+.controls {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0.25;
+  transition: opacity 0.3s ease;
+}
+.controls:hover { opacity: 1; }
+body.show-controls .controls { opacity: 1; }
+
+.ctl {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 1.15rem;
+  line-height: 1;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+.ctl:hover { background: rgba(255, 255, 255, 0.15); }
+.ctl.off { color: rgba(255, 255, 255, 0.4); }
+
+/* Hidden YouTube player mount. */
+.yt-offscreen {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  left: -9999px;
+  top: -9999px;
+  opacity: 0;
+  pointer-events: none;
+}

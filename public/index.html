@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slideshow</title>
+  <meta name="description" content="A full-screen photo slideshow with a Ken Burns zoom and music.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Slideshow">
+  <meta name="theme-color" content="#000000">
+  <link rel="preconnect" href="https://lh3.googleusercontent.com">
+  <link rel="stylesheet" href="styles.css?v=1">
+</head>
+<body>
+  <!-- Two stacked layers that crossfade between the current and next photo. -->
+  <div class="stage" id="stage">
+    <img class="slide" id="slide-a" alt="">
+    <img class="slide" id="slide-b" alt="">
+  </div>
+
+  <!-- Start gate: paste a Google Photos share link, then one tap builds the
+       slideshow and unlocks audio (browsers block autoplay of sound). -->
+  <div class="start-overlay" id="start-overlay">
+    <form class="start-inner" id="start-form">
+      <label class="start-label" for="album-url">Google Photos share link</label>
+      <input class="start-input" id="album-url" type="url" inputmode="url"
+             autocomplete="off" spellcheck="false"
+             placeholder="https://photos.google.com/share/…?key=…">
+      <button class="start-btn" id="start-btn" type="submit">&#9654;&nbsp; PRESS PLAY</button>
+      <p class="start-error" id="start-error" role="alert"></p>
+      <p class="start-note">sound on</p>
+    </form>
+  </div>
+
+  <!-- Minimal controls bar. -->
+  <div class="controls" id="controls">
+    <button class="ctl" id="prev-btn" type="button" aria-label="Previous photo" title="Previous">&#10094;</button>
+    <button class="ctl" id="play-btn" type="button" aria-label="Pause" title="Play / Pause">&#10074;&#10074;</button>
+    <button class="ctl" id="next-btn" type="button" aria-label="Next photo" title="Next">&#10095;</button>
+    <button class="ctl" id="music-toggle" type="button" aria-label="Toggle music" title="Music">&#9834;</button>
+  </div>
+
+  <!-- Hidden YouTube mount (used only when a YouTube track is picked). -->
+  <div id="yt-player" class="yt-offscreen" aria-hidden="true">
+    <div id="yt-frame"></div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

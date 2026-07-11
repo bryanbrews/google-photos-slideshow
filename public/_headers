@@ -1,0 +1,5 @@
+# Revalidate JS/CSS on every deploy (paired with ?v= cache-busters in index.html).
+/app.js
+  Cache-Control: public, max-age=0, must-revalidate
+/styles.css
+  Cache-Control: public, max-age=0, must-revalidate
