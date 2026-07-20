@@ -6,6 +6,8 @@ screen, press play, and the app fetches the full album (paginating through all
 photos via Google's internal batchexecute RPC), then displays them with a Ken Burns
 zoom-and-pan crossfade effect and a random YouTube background track.
 
+![Screenshot](docs/screenshot.png)
+
 > **Warning — unofficial API:** This app uses Google Photos' **unofficial**
 > `snAcKc` batchexecute RPC (the same one the Photos web UI calls internally).
 > Google has not documented or committed to this interface; it **may break without
